@@ -4,5 +4,6 @@ imsize 1920 1080
 #     octaves (+int), led(float), gain(float), freq(float)
 noise 16 2.0 0.6 6.0
 
+# alternative noise params 16 -2.0 -0.6 6.0
+
 # there has to be a . after the integer portion of the number for it to be a float
-# try the params 16 -2.0 -0.6 6.0
