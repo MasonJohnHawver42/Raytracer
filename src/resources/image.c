@@ -1,8 +1,8 @@
 
 #include "resources/image.h"
 
-#include "resources/util/lexer.h"
-#include "resources/util/common.h"
+#include "util/lexer.h"
+#include "util/common.h"
 
 #include "math/common.h"
 #include "math/vector.h"
@@ -197,7 +197,7 @@ void image_gen_islandnoise(unsigned int octaves, float l, float g, float f, floa
         height = lerp(fade(h_norm), height, (height >= river_deepness) ? height : height - river);
 
         clamp(height, 0.0f, 1.0f);
-        vec3_setall(height, &pixel);
+        vec3_fill(height, &pixel);
         image_setpixel(i, &pixel, image);
     }
 
@@ -224,13 +224,13 @@ void image_mix(Image* dest, Image* source)
             image_getpixel(j, &b, source);
             if(b.x > .95f) 
             {
-                vec3_set(a.x, a.y, a.z, &r);
+                vec3_init(a.x, a.y, a.z, &r);
             }
             else
             {
-                vec3_set(lerp(.2f, 0.5f, 1 - a.x), 
-                         lerp(.2f, 0.5f, 1 - a.y), 
-                         lerp(.2f, 1.0f, a.z), &r);
+                vec3_init(lerp(.2f, 0.5f, 1 - a.x), 
+                          lerp(.2f, 0.5f, 1 - a.y), 
+                          lerp(.2f, 1.0f, a.z), &r);
             }
             image_setpixel(i, &r, dest);
         }

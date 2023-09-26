@@ -3,19 +3,21 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "resources/scene.h"
+#include "resources/scene_noise.h"
 #include "resources/image.h"
 
 int main() 
 {
     //Load Scene
     SceneNoise scene;
-    scene_init(&scene);
-    int success = scene_load("assets/hw0.in", &scene);
+    SceneNoise_init(&scene);
+    int success = SceneNoise_load("assets/hw0.in", &scene);
 
     if (!success) { printf("SCENE {%s} FAILED to LOAD\n", "assets/hw0.in"); return 1; }
 
-    printf("SCENE {%s} LOADED\n\timsize %i, %i\n\tnoise %i, %f, %f, %f\n", "assets/hw0.in", scene.width, scene.height, scene.octaves, scene.led, scene.gain, scene.freq);
+    // printf("SCENE {%s} LOADED\n\timsize %i, %i\n\tnoise %i, %f, %f, %f\n", "assets/hw0.in", scene.width, scene.height, scene.octaves, scene.led, scene.gain, scene.freq);
+    printf("SCENE {%s} LOADED\n", "assets/hw0.in");
+
 
     srand(time(NULL));
 
@@ -25,7 +27,9 @@ int main()
     success = image_loadppm("assets/initials.ppm", &initials);
 
     if (!success) { printf("IMAGE {%s} FAILED to LOAD\n", "assets/initials.ppm"); return 1; }    
-    printf("IMAGE {%s} LOADED\n\t%ix%i f: %i\n", "assets/initials.ppm", initials.width, initials.height, initials.format);
+    //printf("IMAGE {%s} LOADED\n\t%ix%i f: %i\n", "assets/initials.ppm", initials.width, initials.height, initials.format);
+    printf("IMAGE {%s} LOADED\n", "assets/initials.ppm");
+
 
     //Generate Noise Image
     Image img;
@@ -37,14 +41,14 @@ int main()
     image_mix(&img, &initials);
 
     //Save Image
-    image_saveppm("assets/hw0.ppm", &img);
+    image_saveppm("out/hw0.ppm", &img);
 
     printf("IMAGE {%s} SAVED\n", "assets/hw0.ppm");
     
     //Free Scene / Imgs
     image_free(&initials);
     image_free(&img);
-    scene_free(&scene);
+    SceneNoise_free(&scene);
 
     return 0;
 }

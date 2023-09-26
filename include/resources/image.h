@@ -3,12 +3,15 @@
 
 #include "math/vector.h"
 
-enum PixelFormat 
+enum PixelFormat_
 {
     RGB_8 = 1, //3 channels - 24bpp
     RG_8, //2 channels - 16bpp
-    R_8 //1 channel - 8bpp
+    R_8, //1 channel - 8bpp
+    RGBA_8, //4 channels - 32bpp (NOT Implimented yet) 
 };
+
+typedef int PixelFormat_;
 
 //helper func {format} is PixelFormat
 int get_channels(int format);
