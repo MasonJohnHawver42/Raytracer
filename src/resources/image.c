@@ -1,8 +1,8 @@
 
 #include "resources/image.h"
 
-#include "util/lexer.h"
-#include "util/common.h"
+#include "core/lexer.h"
+#include "core/common.h"
 
 #include "math/common.h"
 #include "math/vector.h"
@@ -20,7 +20,7 @@ int get_channels(int format)
         case RGB_8: return 3;
         case RG_8: return 2;
         case R_8: return 1;
-        default: printf("RESOURCES::ERROR [get_channels : format %i not found]", format); return 0;
+        default: printf("RESOURCES::ERROR [get_channels : format %i not found]\n", format); return 0;
     }
 }
 
@@ -53,34 +53,34 @@ int image_loadppm(const char* file_name, Image* image)
     lexerctx_init(file_data, size, &ctx);
 
     read_token(&ctx, &curr);
-    if (curr.m_type != WORD && !wordtoken_equal(&ctx, "P3", &curr)) { printf("RESOURCES::ERROR [image_loadppm : format violated]"); return 0; }
+    if (curr.m_type != WORD && !wordtoken_equal(&ctx, "P3", &curr)) { printf("RESOURCES::ERROR [image_loadppm : format violated 0]"); return 0; }
 
     read_token(&ctx, &curr);
-    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated 1]\n"); return 0; }
 
     read_token(&ctx, &curr);
-    if (curr.m_type != INT) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != INT) { printf("RESOURCES::ERROR [image_loadppm : format violated 2]\n"); return 0; }
     image->width = curr.m_data.m_int;
 
     read_token(&ctx, &curr);
-    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated 3]\n"); return 0; }
 
     read_token(&ctx, &curr);
-    if (curr.m_type != INT) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != INT) { printf("RESOURCES::ERROR [image_loadppm : format violated 4]\n"); return 0; }
     image->height = curr.m_data.m_int;
 
     read_token(&ctx, &curr);
-    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated 5]\n"); return 0; }
 
     read_token(&ctx, &curr);
-    if (curr.m_type != INT || curr.m_data.m_int != 255) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != INT || curr.m_data.m_int != 255) { printf("RESOURCES::ERROR [image_loadppm : format violated 6]\n"); return 0; }
     image->format = RGB_8;
     // printf("width: %i\n", image->width);
     // printf("height: %i\n", image->height);
     // printf("format: %i\n", image->format);
 
     read_token(&ctx, &curr);
-    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated]\n"); return 0; }
+    if (curr.m_type != WHITE_SPACE) { printf("RESOURCES::ERROR [image_loadppm : format violated 7]\n"); return 0; }
 
 
     int channels = get_channels(image->format);
@@ -127,7 +127,7 @@ void image_setpixel(unsigned int i, vec3* v, Image* image)
             image->data[i * 3 + 1] = (unsigned char)(v->y * 255);
             image->data[i * 3 + 2] = (unsigned char)(v->z * 255); break;
         default:
-            printf("RESOURCES::ERROR [image_setpixel : format not supported]"); return;
+            printf("RESOURCES::ERROR [image_setpixel : format %i not supported]\n", image->format); return;
     }
 }
 
@@ -147,7 +147,7 @@ void image_getpixel(unsigned int i, vec3* v, Image* image)
 void image_getuv(unsigned int i, vec2* uv, Image* image) 
 {
     uv->x = (float)(i % image->width) / (float)image->width; //0 - 1
-    uv->y = (floor(i / image->height) / image->width); //0 - 1
+    uv->y = (floor(i / image->width) / image->height); //0 - 1
 }
 
 unsigned int image_getindex(vec2* uv, Image* image) 

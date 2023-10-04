@@ -1,7 +1,7 @@
 #include "resources/scene_noise.h"
 
-#include "util/common.h"
-#include "util/lexer.h"
+#include "core/common.h"
+#include "core/lexer.h"
 
 #include <stdlib.h>
 

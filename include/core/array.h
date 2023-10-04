@@ -21,6 +21,8 @@ struct arena
 
     size_t elem_size;
     unsigned int chunk_cap;
+
+    unsigned int size;
 };
 
 //iter object for easy and quick itteration

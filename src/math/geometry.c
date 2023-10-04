@@ -18,6 +18,26 @@ void sphere_init(vec3* p, float r, sphere* s)
     s->m_rad = r;
 }
 
+void aabb_init(vec3* min_pt, vec3* max_pt, aabb* ab) 
+{
+    ab->min_pt = *min_pt;
+    ab->max_pt = *max_pt;
+}
+
+void aabb_sphere(sphere* s, aabb* ab) 
+{
+    ab->min_pt = s->m_pos;
+    ab->max_pt = s->m_pos;
+
+    ab->min_pt.x -= s->m_rad;
+    ab->min_pt.y -= s->m_rad;
+    ab->min_pt.z -= s->m_rad;
+
+    ab->max_pt.x += s->m_rad;
+    ab->max_pt.y += s->m_rad;
+    ab->max_pt.z += s->m_rad;
+}
+
 //assumes ray dir is normalized
 void sphere_ray_intersect(ray* r, sphere* s, int* count, float* enter, float* exit) 
 {

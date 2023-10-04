@@ -10,6 +10,7 @@ void arena_init(unsigned int cc, size_t es, arena* arr)
     arr->tail = NULL;
     arr->elem_size = es;
     arr->chunk_cap = cc;
+    arr->size = 0;
 }
 
 int arena_push(void* data, arena* arr) 
@@ -43,6 +44,7 @@ int arena_push(void* data, arena* arr)
 
     memcpy(arr->tail->data + (arr->tail->used * arr->elem_size), data, arr->elem_size);
     arr->tail->used++;
+    arr->size++;
 
     return 2;
 }

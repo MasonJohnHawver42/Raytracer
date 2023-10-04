@@ -1,0 +1,39 @@
+# int -> no decimal place, optional sign
+# float -> has a decimal place, optional sign
+
+# imsize (0 < x: int, 0 < y: int)
+imsize 900 900
+
+# eye (x: float, y: float, z: float)
+eye      0.0 -10.0 -10.0
+
+# viewdir (x: float, y: float, z: float) != {0, 0, 0}
+viewdir  0.0 1.0 1.0
+
+# updir (x: float, y: float, z: float) != {0, 0, 0}
+updir    0.25 1.0 0.0
+
+# vfov (0.0 < float < 180.0f)
+vfov     90.0
+
+# bkgcolor {0, 0, 0} <= (r: float, g: float, b: float) <= {1, 1, 1}
+bkgcolor 0.05 0.05 0.05
+
+# mtlcolor {0, 0, 0} <= (r: float, g: float, b: float) <= {1, 1, 1}
+mtlcolor 0.0 0.0 1.0
+
+#sphere (x: float, y: float, z: float, 0 < r: float)
+sphere   0.0 0.0 0.0 2.0
+
+mtlcolor 0.0 1.0 1.0
+sphere   -3.0 0.0 0.0 2.0
+
+mtlcolor 1.0 1.0 1.0
+sphere   3.0 0.0 0.0 2.0
+
+mtlcolor 1.0 0.0 1.0
+sphere   0.0 3.0 0.0 2.0
+
+mtlcolor 1.0 1.0 0.0
+sphere   0.0 -3.0 0.0 2.0
+

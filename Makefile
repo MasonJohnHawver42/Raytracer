@@ -1,40 +1,68 @@
 CC = gcc
 INCLUDE = -I./include
-LIB = -lm
 
-SOURCE = src/util/common.c \
-		 src/util/lexer.c \
-		 src/resources/image.c \
-		 src/resources/scene_noise.c \
+ifneq ("$(THREADED)", "")
+	LIB = -lm -lpthread
+	FLAGS = -O3 -DTHREAD_IT
+	DECERATOR = _t
+else
+	LIB = -lm
+	FLAGS = -O3
+	DECERATOR = _n
+endif
+
+SOURCE = src/core/common.c \
+		 src/core/lexer.c \
+		 src/core/array.c \
 		 src/math/common.c \
 		 src/math/vector.c \
 		 src/math/noise.c \
-		 src/core/array.c \
+		 src/math/geometry.c \
+		 src/resources/image.c \
 		 src/resources/scene.c \
-		 src/math/geometry.c
+		 src/resources/scene_noise.c \
+		 src/raytracer/bvh.c \
+		 src/raytracer/raytracer.c
 
 VIEW ?= feh
 
-bin/hw0 : hw0.c $(SOURCE)
-	$(CC) hw0.c $(SOURCE) -o hw0 $(INCLUDE) $(LIB)
-	mv hw0 bin/.
+HW_VERSION ?= hw1b
+HW_NAME = $(HW_VERSION)$(DECERATOR)
 
-bin/hw1a : hw1a.c $(SOURCE)
-	$(CC) hw1a.c $(SOURCE) -o hw1a $(INCLUDE) $(LIB)
-	mv hw1a bin/.
+raytracer1b : ./bin/$(HW_NAME)
+	cp ./bin/$(HW_NAME) ./raytracerlb
 
+# Make command for hw
+
+./bin/$(HW_NAME) : $(HW_VERSION).c $(SOURCE)
+	$(CC) $(HW_VERSION).c $(SOURCE) -o ./bin/$(HW_NAME) $(INCLUDE) $(LIB) $(FLAGS)
+
+
+# Basic Phony targets
+
+all: raytracer1b
+
+clean: 
+	rm -f ./raytracer1b
+
+# ignore: Phony Targets for quick and dirty image creation and viewing
 
 hw0: bin/hw0
 	./bin/hw0
-	$(VIEW) out/hw0.ppm
+	$(VIEW) assets/renders/hw0.ppm
 
 hw1a: bin/hw1a
-	./bin/hw1a assets/hw1a.in out/hw1a.ppm
-	$(VIEW) out/hw1a.ppm
+	./bin/hw1a assets/scenes/hw1a.in assets/renders/hw1a.ppm
+	$(VIEW) assets/renders/hw1a.ppm
 
-all: hw0 hw1a
-	@echo "FINISHED"
+hw1b: bin/hw1b_t
+	./bin/hw1b_t assets/scenes/hw1b.in assets/renders/hw1b.ppm
+	$(VIEW) assets/renders/hw1b.ppm
 
-clean: 
-	rm -f bin/* out/*
+balls: bin/hw1b_t
+	./bin/hw1b_t assets/scenes/balls.in assets/renders/balls.ppm
+	$(VIEW) assets/renders/balls.ppm
+
+views: hw0 hw1a hw1b balls
+
 	
