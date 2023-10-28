@@ -6,13 +6,18 @@ Class: CSCI 5607
 
 # Gallery
 
-in progress ...
+hw1c showcase img (./showcase_hw1c.png): 
+
+![hw1c 2 showcase](./assets/gallery/showcase_1c2.png)
+![hw1c 1 showcase](./assets/gallery/showcase_1c1.png)
+
 
 <details>
-  <summary> old submission imgs </summary>
+  <summary> old showcase imgs </summary>
 
-![Distorted](./assets/gallery/hw1a_final2.png)
-![Distorted](./assets/gallery/hw0_final.png)
+![hw1b showcase](./assets/gallery/hw1b_final.png)
+![hw1a showcase](./assets/gallery/hw1a_final2.png)
+![hw00 showcase](./assets/gallery/hw0_final.png)
 
 </details>
 
@@ -20,17 +25,17 @@ in progress ...
 
 Compiling and Running on Linux-x86: (If not use the use the corresponding programs on your system)
 ```
-cd <path to mason.hawver.hw1b>
+cd <path to hw1c.mason.hawver>
 make all
-./raytracer1b <input file name> <optional: output file name>
+./raytracer1c <input file name> <optional: output file name>
 ``` 
 
 Example Usage:
 ```
-./raytracer1b ./assets/scenes/hw1b.in ./hw1b.ppm
+./raytracer1c ./assets/scenes/hw1b.in ./hw1b.ppm
 feh ./hw1b.ppm #view image
 
-./raytracer1b ./assets/scenes/hw1b.in 
+./raytracer1c ./assets/scenes/hw1b.in 
 feh ./assets/scenes/hw1b.ppm #view image
 ```
 
@@ -39,8 +44,8 @@ feh ./assets/scenes/hw1b.ppm #view image
  * ./include -> stores header files, the header files are commented so go there for additional documentation.
  * ./include/core -> headers for core data structures, io, and parsing
  * ./include/math -> headers for vectors, rays, spheres, perlin noise, and common math functions and structures
- * ./include/resources -> headers for image and scene loading
- * ./include/raytracer -> headers for ray casting and shading
+ * ./include/resources -> headers for image and scene loading and saving
+ * ./include/raytracer -> headers for ray casting, shading, and a bvh
  * ./src -> stores source files for each header file, it mirrors the structure of ./include
  * ./ -> stores main functions and Makefiles, README.md, and raytracer1b
  
@@ -48,10 +53,16 @@ feh ./assets/scenes/hw1b.ppm #view image
 
  * ./assets -> a bunch of files 
  * ./bin -> all programs generated so far
+ * ./tests -> my unit tests
 
-# HW1b Writeup
+# HW1c Writeup
 
-todo ...
+
+![hw1c test img](./assets/hw1c_imgs/hw1c.png)
+
+The reference Image for this scene was notably distorted compared to mine; I'm assuming there is something wrong with your code. The scene file for this is in ./assets/scenes/hw1c.in.
+
+The scene files for the two showcase images: ./assets/scenes/bunny2.in ./assets/scenes/dragon.in
 
 ## Old HW Writeups
 
@@ -69,7 +80,7 @@ hw0.c holds the main function for assignment 0. It first loads a scene from asse
 
 <details>
   <summary>HW1a</summary>
-  
+
 # HW1a Writeup
 
 1) How does the apparent rotation of the scene with respect to the viewpoint change with changes in the direction of the ‘up’ vector?
@@ -149,4 +160,129 @@ params:
 * viewdir  0.0 1.0 1.0
 * updir    0.25 1.0 0.0
 * vfov     179.0
+</details>
+
+
+<details>
+  <summary>HW1b</summary>
+
+
+# HW1b Extra credit
+  
+**Depth Cueing**:
+
+![depth cue](./assets/hw1b_imgs/img15.png)
+
+depthcueing 0 0 0 1 .05 100 40
+
+**Attenuated Lights**:
+
+![att lights](./assets/hw1b_imgs/img16.png)
+
+attlight 0 20 20   1  1 1 1  1 .001 .001 \
+attlight 0 20 200   1  1 1 1  1 .001 .001 \
+attlight 200 20 200   1  1 1 1  1 .001 .001 \
+attlight -200 20 200   1  1 1 1  1 .001 .001
+
+# HW1b Writeup
+
+1:
+
+**Ambient Reflection**: \
+low values of ka produce materials that absorb more light making them appear darker. This is suitable for matte surfaces like clay or chalk.
+
+![low ka](./assets/hw1b_imgs/img1.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.0 0.8 0.2  10
+
+high values of ka produce brighter objects that scatter more light. This is suitable for metallic objects.
+
+![high ka](./assets/hw1b_imgs/img2.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.6 0.1 0.3 100
+
+**Diffuse Reflection**: \
+low values of kd produce rough objects that are less likely to scatter light in all directions. This is suitable for plastics and other rough surfaces.
+
+![low kd](./assets/hw1b_imgs/img3.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.8 0.1 0.1 10
+
+high values of kd produce rough objects that are less likely to scatter light in all directions. This is good for paper.
+
+![high kd](./assets/hw1b_imgs/img4.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.1 0.6 0.3 10
+
+**Specular Reflection**: \
+low values of ks produce materials that have less sharp highlights. This is suitable for materials like wood or clay.
+
+![low ks](./assets/hw1b_imgs/img5.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.5 0.5 0.0 30
+
+high values of ks produce materials with strong specular highlights. This is suitable for polished metals. 
+
+![high ks](./assets/hw1b_imgs/img6.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.1 0.2 0.7 300
+
+**Specular Exponent**: \
+low n values produce broad diffuse highlights which is good for materials like skin and some fabrics.
+
+![low n](./assets/hw1b_imgs/img7.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.4 0.2 0.4 2
+
+high n value create tight, sharp highlights. This is suitable for materials like polished metals or ceramics.
+
+![high n](./assets/hw1b_imgs/img8.png)
+
+mtlcolor 0.4 0.0 1.0  1 1 1  0.25 0.25 0.5 100
+
+**Diffuse Color**:
+
+The diffuse color controls the base color of the object.
+
+![dc](./assets/hw1b_imgs/img9.png)
+
+mtlcolor 0.4 0.7 1.0  1 1 1  0.25 0.25 0.5 10
+
+**Specular Color**:
+
+The specular color controls the color of specular highlights independent of the diffuse color.
+
+![dc](./assets/hw1b_imgs/img10.png)
+
+mtlcolor 0.4 0.7 1.0  .7 .4 .1  0.25 0.25 0.5 10
+
+**Shortcomings of Blinn-Phong**: \
+The Blinn-Phong model can't represent translucent materials, sub-surface scattering, volumetric objects, or the fresnel effect - to just name a few.
+
+
+**Point vs Directional Lights**: \
+A point light is a finite distance away from every point in the scene v.s. a directional light is infinitely far away and is only described by its direction. A directional light is more suitable for representing the sun where points lights are used to mimic light bulbs.
+
+eye      0 20 0 \
+sphere   0.0 0.0 20.0 10.0
+
+![point](./assets/hw1b_imgs/img11.png)
+
+light 20 20 20   1 1 1 1
+
+![directional](./assets/hw1b_imgs/img12.png)
+
+light -1 -1 0   0 1 1 1
+
+When the point light is placed close to an object its shadow is warped on the surface, where the directional light almost seems to paint a perfect circle onto the surface.
+
+**Multiple Lights**:
+multiple lights force shadows to be mixed, currently this is done additively. It also forces the scene to be overall damper so when two lights overlap the result can be shown without overloading the light intensity.
+
+![directional](./assets/hw1b_imgs/img13.png)
+
+light 20 20 20   1 .33 .33 .33 \
+light -20 20 20  1 .33 .33 .33 \
+light 0 20 20    1 .33 .33 .33 
+
 </details>

@@ -13,15 +13,15 @@ void arena_init(unsigned int cc, size_t es, arena* arr)
     arr->size = 0;
 }
 
-int arena_push(void* data, arena* arr) 
+void* arena_push(arena* arr) 
 {
     if (!arr->tail) 
     {
-        if (arr->head) { return 1; }
+        if (arr->head) { return NULL; }
         arr->head = malloc(sizeof(chunk));
-        if (!arr->head) { return 0; }
+        if (!arr->head) { return NULL; }
         arr->head->data = malloc(arr->elem_size * (arr->chunk_cap));
-        if (!arr->head->data) { return 0; }
+        if (!arr->head->data) { return NULL; }
         arr->head->used = 0;
         arr->head->next = NULL;
         arr->tail = arr->head;
@@ -33,20 +33,38 @@ int arena_push(void* data, arena* arr)
         chunk* new_chunk = malloc(sizeof(chunk));
         if (!new_chunk) { return 0; }
         new_chunk->data = malloc(arr->elem_size * (arr->chunk_cap));
-        if (!new_chunk->data) { return 0; }
+        if (!new_chunk->data) { return NULL; }
         new_chunk->used = 0;
         new_chunk->next = NULL;
-        if (arr->tail->next) { return 1; }
+        if (arr->tail->next) { return NULL; }
         arr->tail->next = new_chunk;
         arr->tail = new_chunk;
         // printf("block made\n");
     }
 
-    memcpy(arr->tail->data + (arr->tail->used * arr->elem_size), data, arr->elem_size);
+    void* res = arr->tail->data + (arr->tail->used * arr->elem_size); //memcpy(arr->tail->data + (arr->tail->used * arr->elem_size), data, arr->elem_size);
     arr->tail->used++;
     arr->size++;
 
-    return 2;
+    return res;
+}
+
+void* arena_array(arena* arr) 
+{
+    char* array = malloc(arr->size * arr->elem_size);
+
+    chunk* curr = arr->head;
+    int index = 0; //offset in bytes
+
+    while (curr != NULL) 
+    {
+        //cpy into the array
+        memcpy(array + index, curr->data, curr->used * arr->elem_size);
+        index += curr->used * arr->elem_size;
+        curr = curr->next;
+    }
+
+    return (void*)array;
 }
 
 int arena_begin(arena_iter* iter, arena* arr) 
@@ -99,4 +117,14 @@ void arena_free(arena* arr)
     }
 
     chunk_free(arr->head);
+
+    arr->head = NULL;
+    arr->tail = NULL;
+}
+
+void arena_move(arena* arr, arena* cannibal) 
+{
+    *cannibal = *arr;
+    arr->head = NULL;
+    arr->tail = NULL;
 }

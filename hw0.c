@@ -4,7 +4,10 @@
 #include <time.h>
 
 #include "resources/scene_noise.h"
+
 #include "resources/image.h"
+
+
 
 int main() 
 {
@@ -17,7 +20,6 @@ int main()
 
     // printf("SCENE {%s} LOADED\n\timsize %i, %i\n\tnoise %i, %f, %f, %f\n", "assets/hw0.in", scene.width, scene.height, scene.octaves, scene.led, scene.gain, scene.freq);
     printf("SCENE {%s} LOADED\n", "assets/scenes/hw0.in");
-
 
     srand(time(NULL));
 

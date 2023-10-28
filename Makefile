@@ -1,19 +1,10 @@
 CC = gcc
 INCLUDE = -I./include
 
-ifneq ("$(THREADED)", "")
-	LIB = -lm -lpthread
-	FLAGS = -O3 -DTHREAD_IT
-	DECERATOR = _t
-else
-	LIB = -lm
-	FLAGS = -O3
-	DECERATOR = _n
-endif
-
 SOURCE = src/core/common.c \
 		 src/core/lexer.c \
 		 src/core/array.c \
+		 src/core/hashmap.c \
 		 src/math/common.c \
 		 src/math/vector.c \
 		 src/math/noise.c \
@@ -26,24 +17,33 @@ SOURCE = src/core/common.c \
 
 VIEW ?= feh
 
-HW_VERSION ?= hw1b
-HW_NAME = $(HW_VERSION)$(DECERATOR)
+HW_VERSIONS = hw1c hw1b hw1a hw0
 
-raytracer1b : ./bin/$(HW_NAME)
-	cp ./bin/$(HW_NAME) ./raytracerlb
+targets = $(addprefix ./bin/, $(HW_VERSIONS))
+
+targets_t = $(addsuffix _t, $(targets))
+
+raytracer1c : ./bin/hw1c
+	cp ./bin/hw1c ./raytracer1c
+
+raytracer1b : ./bin/hw1b
+	cp ./bin/hw1b ./raytracer1b
 
 # Make command for hw
 
-./bin/$(HW_NAME) : $(HW_VERSION).c $(SOURCE)
-	$(CC) $(HW_VERSION).c $(SOURCE) -o ./bin/$(HW_NAME) $(INCLUDE) $(LIB) $(FLAGS)
+$(targets) : ./bin/% : %.c $(SOURCE)
+	$(CC) $< $(SOURCE) -o $@ $(INCLUDE) -lm -g
 
+$(targets_t) : ./bin/%_t : %.c $(SOURCE)
+	$(CC) $< $(SOURCE) -o $@ $(INCLUDE) -lm -lpthread -O3 -DTHREAD_IT
 
 # Basic Phony targets
 
-all: raytracer1b
+all: raytracer1c
 
 clean: 
-	rm -f ./raytracer1b
+	rm -f ./raytracer1b ./raytracer1c
+	rm -f ./bin/*
 
 # ignore: Phony Targets for quick and dirty image creation and viewing
 
@@ -59,9 +59,26 @@ hw1b: bin/hw1b_t
 	./bin/hw1b_t assets/scenes/hw1b.in assets/renders/hw1b.ppm
 	$(VIEW) assets/renders/hw1b.ppm
 
-balls: bin/hw1b_t
-	./bin/hw1b_t assets/scenes/balls.in assets/renders/balls.ppm
+hw1c: bin/hw1c_t
+	./bin/hw1c_t assets/scenes/hw1c.in assets/renders/hw1c.ppm 
+	$(VIEW) assets/renders/hw1c.ppm
+
+balls: bin/hw1c_t
+	./bin/hw1c_t assets/scenes/balls.in assets/renders/balls.ppm
 	$(VIEW) assets/renders/balls.ppm
+
+bunny: bin/hw1c_t
+	./bin/hw1c_t assets/scenes/bunny2.in assets/renders/bunny.ppm
+	$(VIEW) assets/renders/bunny.ppm
+
+arm: bin/hw1c_t
+	./bin/hw1c_t assets/scenes/arm.in assets/renders/arm.ppm
+	$(VIEW) assets/renders/arm.ppm
+
+dragon: bin/hw1c_t
+	./bin/hw1c_t assets/scenes/dragon.in assets/renders/dragon.ppm
+	$(VIEW) assets/renders/dragon.ppm
+
 
 views: hw0 hw1a hw1b balls
 

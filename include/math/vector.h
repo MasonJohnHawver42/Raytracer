@@ -2,7 +2,12 @@
 #define VECTOR_H
 
 struct vec4 { float w, x, y, z; };
-struct vec3 { float x, y, z; };
+struct vec3 { 
+    union {
+        struct { float x, y, z; };
+        float raw[3];
+    };
+};
 struct vec2 { float x, y; };
 
 typedef struct vec4 vec4;
@@ -23,6 +28,11 @@ void  vec3_cross(vec3* a, vec3* b, vec3* res);
 void  vec3_norm(vec3* v);
 void  vec3_scale(float s, vec3* v);
 void  vec3_print(vec3 *v);
+void  vec3_inv(vec3* a, vec3* b);
+void  vec3_mult(vec3* a, vec3* b);
+
+void vec3_bc_mix(vec2* bc, vec3* v0, vec3* v1, vec3* v2, vec3* res);
+void vec2_bc_mix(vec2* bc, vec2* v0, vec2* v1, vec2* v2, vec2* res);
 
 void vec3_lerp(float t, vec3* a, vec3* b, vec3* res);
 void vec3_fill(float a, vec3* v);

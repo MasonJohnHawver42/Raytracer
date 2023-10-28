@@ -6,7 +6,7 @@
 //tokens
 enum TokenType 
 {
-    WORD, INT, FLOAT, WHITE_SPACE, EOF_TOKEN
+    WORD, INT, FLOAT, WHITE_SPACE, SLASH, EOF_TOKEN
 };
 
 struct WordToken 

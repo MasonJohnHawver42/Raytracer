@@ -44,7 +44,9 @@ void   arena_init(unsigned int cc, size_t es, arena* arr);
 
 //push back {data} to arena, {arr}
 //returns 1 for success and 0 otherwise
-int    arena_push(void* data, arena* arr);
+void*  arena_push(arena* arr);
+
+void*  arena_array(arena* arr);
 
 //init {iter} at the start of the arena {arr}
 //returns 1 if theres a element at the iter and 0 otherwise
@@ -59,6 +61,8 @@ void*  arena_get(arena_iter* iter, arena* arr);
 
 //free arena {arr}
 void   arena_free(arena* arr);
+
+void arena_move(arena* arr, arena* cannibal);
 
 
 #endif

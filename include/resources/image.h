@@ -39,6 +39,8 @@ void image_loadblank(unsigned int width, unsigned int height, int format, Image*
 // set pixel at {i} (i = pixel_x + pixel_y * width) to {v} (v's componets should be between 0-1) in {image}
 void image_setpixel(unsigned int i, vec3* v, Image* image);
 
+void image_setpixel_safe(unsigned int i, vec3* v, Image* image);
+
 // get pixel at {i} (i = pixel_x + pixel_y * width) put data into {v} (v's componets should be between 0-1) in {image}
 void image_getpixel(unsigned int i, vec3* v, Image* image);
 

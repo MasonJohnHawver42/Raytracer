@@ -9,7 +9,7 @@ char* file_loaddata(const char* file_name, int* dataSize)
 
     if (file_name == NULL || dataSize == NULL) 
     { 
-        // printf("Resources::Error [load_filedata : passed NULL ]\n");
+        printf("Resources::Error [load_filedata : passed NULL ]\n");
         return data; 
     }
 
@@ -19,7 +19,7 @@ char* file_loaddata(const char* file_name, int* dataSize)
 
     if (in_file == NULL) 
     {
-        // printf("Resources::Error [load_filedata : could not open file]\n");
+        printf("Resources::Error [load_filedata : could not open file]\n");
         return data;
     }
 
@@ -29,7 +29,7 @@ char* file_loaddata(const char* file_name, int* dataSize)
 
     if (size <= 0) 
     { 
-        // printf("Resources::Error [load_filedata : file empty]\n");
+        printf("Resources::Error [load_filedata : file empty]\n");
         return data; 
     }
 
@@ -37,7 +37,7 @@ char* file_loaddata(const char* file_name, int* dataSize)
 
     if (data == NULL) 
     {
-        // printf("Resources::Error [load_filedata : couldnt allocate data]\n");
+        printf("Resources::Error [load_filedata : couldnt allocate data]\n");
         return data;
     }
 
@@ -46,7 +46,7 @@ char* file_loaddata(const char* file_name, int* dataSize)
 
     if (count != size) 
     {
-        // printf("Resources::Error [load_filedata : size mismatch]\n");
+        printf("Resources::Error [load_filedata : size mismatch]\n");
         free(data);
         data = NULL;
         return data;

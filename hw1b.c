@@ -7,13 +7,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef THREAD_IT
-#include <pthread.h>
-#include <sys/sysinfo.h>
+#ifdef THREAD_IT //for threading - I send you guys the non threded version, so theres less chance for it screwing up
+    #include <pthread.h>
+    #include <sys/sysinfo.h>
 #endif
 
 //Author: Mason John Hawver
 
+//patch describes what part of an image a thread should work on
 struct patch
 {
     unsigned int start, end;
@@ -24,6 +25,7 @@ struct patch
 
 typedef struct patch patch;
 
+//init patch
 void patch_init(int i, int n, rtctx* s, Image* img, patch* p) 
 {
     p->m_scene = s;
@@ -36,6 +38,7 @@ void patch_init(int i, int n, rtctx* s, Image* img, patch* p)
     p->image = img;
 }
 
+//render each pixel for the patch (arg is just a void* for patch)
 void *compute_patch(void* arg) 
 {
     patch* p_data = (patch*)arg;
@@ -43,10 +46,10 @@ void *compute_patch(void* arg)
     vec2 s_uv;
     ray s_ray;
 
+    vec3 inv_d;
+
     int hit;
-    float time_hit;
-    vec3 s_normal;
-    material s_material;
+    raycast rc;
 
     vec3 s_color;
 
@@ -57,10 +60,10 @@ void *compute_patch(void* arg)
 
         rtctx_init_ray(&s_uv, p_data->m_scene, &s_ray); //make the ray for the uv
 
-        rtctx_cast_ray(&s_ray, p_data->m_scene, &hit, &time_hit, &s_normal, &s_material); // cast the ray find what when and how it hit an object (if it did)
-        rtctx_shade(p_data->m_scene, hit, time_hit, &s_normal, &s_material, &s_color); // shade the pixel based on the ray cast outputs
+        rtctx_cast_ray(&s_ray, p_data->m_scene, -1, NONE_RC, &hit, &rc); // cast the ray find what when and how it hit an object (if it did)
+        rtctx_shade(p_data->m_scene, &s_ray, hit, &rc, &s_color); // shade the pixel based on the ray cast outputs
 
-        image_setpixel(i, &s_color, p_data->image); //set pixel color
+        image_setpixel_safe(i, &s_color, p_data->image); //set pixel color
     }
 }
 
@@ -100,7 +103,7 @@ int main(int argc, char* argv[])
 
         //load scene from raw scene, do precomputations for ray tracing
         rtctx_load(&s_rs, &s_scene);
-        printf("CTX {bvh built} CREATED\n");
+        printf("CTX {bvh depth %d: %d nodes %d primatives} BUILT\n", s_scene.m_bvh.depth, s_scene.m_bvh.node_index, s_scene.m_bvh.sphere_count);
         
         scene_free(&s_rs); //free raw scene, its no longer needed
     }
@@ -110,18 +113,17 @@ int main(int argc, char* argv[])
     image_init(&img);
     image_loadblank(s_scene.width, s_scene.height, RGB_8, &img);
 
-    // printf("This system has %d processors configured and "
-    // "%d processors available.\n",
-    // get_nprocs_conf(), get_nprocs());
 
-#ifdef THREAD_IT
+#ifdef THREAD_IT //for threading - I send you guys the non threded version, so theres less chance for it screwing up
 
+    //make threads and patches
     int threads = get_nprocs();
     patch* patches = malloc(sizeof(patch) * threads);
     pthread_t* tids = malloc(sizeof(pthread_t) * threads);
 
     printf("SYS {%d threads} SPUN UP\n", threads);
 
+    //init -> compute -> join
     for (int i = 0; i < threads; i++) { patch_init(i, threads, &s_scene, &img, patches + i); }
     for (int i = 0; i < threads; i++) { pthread_create(tids + i, NULL, compute_patch, (void*)(patches + i)); }
     for (int i = 0; i < threads; i++) { pthread_join(tids[i], NULL); }
@@ -131,10 +133,11 @@ int main(int argc, char* argv[])
 
 #endif
 
-#ifndef THREAD_IT
+#ifndef THREAD_IT //for single threading ie what I send you
 
     printf("SYS {no threads} SPUN UP\n");
 
+    //make a patch for the whole image and compute it
     patch img_patch;
     patch_init(0, 1, &s_scene, &img, &img_patch);
     compute_patch(&img_patch);

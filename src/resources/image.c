@@ -47,6 +47,8 @@ int image_loadppm(const char* file_name, Image* image)
     int size;
     char* file_data = file_loaddata(file_name, &size);
 
+    if (file_data == NULL) { return 2; }
+
     Token curr;
     LexerContext ctx;
 
@@ -123,9 +125,38 @@ void image_setpixel(unsigned int i, vec3* v, Image* image)
     switch(image->format) 
     {
         case RGB_8:
+// #ifndef IMG_UNSAFE  
+//             // printf("here\n");      
+//             image->data[i * 3 + 0] = (unsigned char)(clamp(v->x * 255, 0.0f, 255.0f));
+//             image->data[i * 3 + 1] = (unsigned char)(clamp(v->y * 255, 0.0f, 255.0f));
+//             image->data[i * 3 + 2] = (unsigned char)(clamp(v->z * 255, 0.0f, 255.0f)); break;
+// #endif
+// #ifdef IMG_UNSAFE
             image->data[i * 3 + 0] = (unsigned char)(v->x * 255);
             image->data[i * 3 + 1] = (unsigned char)(v->y * 255);
             image->data[i * 3 + 2] = (unsigned char)(v->z * 255); break;
+// #endif
+        default:
+            printf("RESOURCES::ERROR [image_setpixel : format %i not supported]\n", image->format); return;
+    }
+}
+
+void image_setpixel_safe(unsigned int i, vec3* v, Image* image) 
+{
+    switch(image->format) 
+    {
+        case RGB_8:
+// #ifndef IMG_UNSAFE  
+            // printf("here\n");      
+            image->data[i * 3 + 0] = (unsigned char)(clamp(v->x * 255, 0.0f, 255.0f));
+            image->data[i * 3 + 1] = (unsigned char)(clamp(v->y * 255, 0.0f, 255.0f));
+            image->data[i * 3 + 2] = (unsigned char)(clamp(v->z * 255, 0.0f, 255.0f)); break;
+// #endif
+// #ifdef IMG_UNSAFE
+            // image->data[i * 3 + 0] = (unsigned char)(v->x * 255);
+            // image->data[i * 3 + 1] = (unsigned char)(v->y * 255);
+            // image->data[i * 3 + 2] = (unsigned char)(v->z * 255); break;
+// #endif
         default:
             printf("RESOURCES::ERROR [image_setpixel : format %i not supported]\n", image->format); return;
     }
@@ -152,8 +183,9 @@ void image_getuv(unsigned int i, vec2* uv, Image* image)
 
 unsigned int image_getindex(vec2* uv, Image* image) 
 {
-    unsigned int x = (unsigned int)floor(uv->x * image->width);
-    unsigned int y = floor(uv->y * image->height);
+    unsigned int x = (unsigned int)floor(uv->x * (image->width));
+    unsigned int y = (unsigned int)floor(uv->y * (image->height - 1));
+    // printf("%d %d ", x, y);
     return x + (y * image->width);
 }
 

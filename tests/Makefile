@@ -7,6 +7,7 @@ FLAGS = -O3
 SOURCE = ../src/core/common.c \
 		 ../src/core/lexer.c \
 		 ../src/core/array.c \
+		 ../src/core/hashmap.c \
 		 ../src/math/common.c \
 		 ../src/math/vector.c \
 		 ../src/math/noise.c \
@@ -25,7 +26,13 @@ clean:
 	rm -f ./diff/*
 
 hw1a : clean compare
+	cd ../ && make ./bin/hw1a
 	python3 unit.py ./hw1a/ ../bin/hw1a ./compare
 
 hw1b : clean compare
-	python3 unit.py ./hw1b/ ../bin/hw1a ./compare
+	cd ../ && make ./bin/hw1b
+	python3 unit.py ./hw1b/ ../bin/hw1b ./compare
+
+hw1c : clean compare
+	cd ../ && make ./bin/hw1c
+	python3 unit.py ./hw1c/ ../bin/hw1c ./compare

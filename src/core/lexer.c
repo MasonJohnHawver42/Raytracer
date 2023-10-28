@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void lexerctx_init(const char *str, int size, LexerContext* ctx) 
 {
@@ -33,7 +34,7 @@ void read_token(LexerContext* ctx, Token* token)
 
     int i = ctx->pos;
 
-    while (!(isspace(ctx->str[i]) || isalpha(ctx->str[i]) || isdigit(ctx->str[i]) || ctx->str[i] == '-' || ctx->str[i] == '#') && i < ctx->size) { i++; } //ignore
+    while (!(isspace(ctx->str[i]) || isalpha(ctx->str[i]) || isdigit(ctx->str[i]) || ctx->str[i] == '-' || ctx->str[i] == '.' || ctx->str[i] == '#' || ctx->str[i] == '/') && i < ctx->size) { i++; } //ignore
 
     if (i >= ctx->size) { ctx->pos = i; token->m_type = EOF_TOKEN; return; }
     
@@ -58,10 +59,18 @@ void read_token(LexerContext* ctx, Token* token)
 
     if (i > j) { ctx->pos = i; token->m_type = WHITE_SPACE; return; }
 
+    if (ctx->str[i] == '/') 
+    {
+        i++;
+        token->m_type = SLASH;
+        ctx->pos = i;
+        return;
+    }
+
     if (isalpha(ctx->str[i])) //parse word
     {
         i++;
-        while((isalpha(ctx->str[i]) || isdigit(ctx->str[i])) && i < ctx->size) { i++; }
+        while((isalpha(ctx->str[i]) || isdigit(ctx->str[i]) || ctx->str[i] == '.' || ctx->str[i] == '/') && i < ctx->size) { i++; }
         token->m_type = WORD;
         token->m_data.m_word.start = j;
         token->m_data.m_word.size = i - j;
@@ -69,55 +78,85 @@ void read_token(LexerContext* ctx, Token* token)
         return;
     }
 
-    if (isdigit(ctx->str[i]) || ctx->str[i] == '-') //parse number
+    if (isdigit(ctx->str[i]) || ctx->str[i] == '-' || ctx->str[i] == '.') //parse number
     {
-        int negative = ctx->str[i] == '-' ? 1 : 0;
-        j = negative ? j + 1 : j;
-
-        i++;
-        while(isdigit(ctx->str[i]) && i < ctx->size) { i++; }
-        int result = 0;
         
-        int start = j;
-        int size = i - j;
+        char* f_pEnd;
+        char* i_pEnd;
+        float f_val;
+        long   i_val;
 
-        
-        int pow = 1;
-        for (int k = i - 1; k >= j; k--) 
+        f_val = strtof(ctx->str + i, &f_pEnd);
+        i_val = strtol(ctx->str + i, &i_pEnd, 10);
+
+        if ((long int)(f_pEnd - (ctx->str + i)) > (long int)(i_pEnd - (ctx->str + i))) 
         {
-            result += pow * (ctx->str[k] - '0');
-            pow *= 10;
-        }
-
-        if (ctx->str[i] == '.') 
-        {
-            i++;
-
-            int start = i;
-            while(isdigit(ctx->str[i]) && i < ctx->size) { i++; }
-
-            int size = i - start;
-            pow = 1;
-            int decimal_result = 0;
-            for (int k = i - 1; k >= start; k--) 
-            {
-                decimal_result += pow * (ctx->str[k] - '0');
-                pow *= 10;
-            }
-
-            float f_value = (float)result + ((float)decimal_result / (float)pow);
             token->m_type = FLOAT;
-            token->m_data.m_float = f_value * (negative ? -1.0f : 1.0f);
-            ctx->pos = i;
+            token->m_data.m_float = f_val;
+            ctx->pos = i + (f_pEnd - (ctx->str + i));
             return;
         }
         else 
         {
             token->m_type = INT;
-            token->m_data.m_int = result * (negative ? -1 : 1);
-            ctx->pos = i;
+            token->m_data.m_int = (int)i_val;
+            ctx->pos = i + (i_pEnd - (ctx->str + i));
             return;
         }
+
+        // int negative = ctx->str[i] == '-' ? 1 : 0;
+        // int sa_point = ctx->str[i] == '.' ? 1 : 0;
+        // j = negative ? j + 1 : j;
+
+        // int result = 0;
+        // int pow;
+
+        // if (!sa_point) 
+        // {
+        //     i++;
+        //     while(isdigit(ctx->str[i]) && i < ctx->size) { i++; }
+            
+        //     int start = j;
+        //     int size = i - j;
+
+            
+        //     int pow = 1;
+        //     for (int k = i - 1; k >= j; k--) 
+        //     {
+        //         result += pow * (ctx->str[k] - '0');
+        //         pow *= 10;
+        //     }
+        // }
+
+        // if (ctx->str[i] == '.' || sa_point) 
+        // {
+        //     i++;
+
+        //     int start = i;
+        //     while(isdigit(ctx->str[i]) && i < ctx->size) { i++; }
+
+        //     int size = i - start;
+        //     pow = 1;
+        //     int decimal_result = 0;
+        //     for (int k = i - 1; k >= start; k--) 
+        //     {
+        //         decimal_result += pow * (ctx->str[k] - '0');
+        //         pow *= 10;
+        //     }
+
+        //     float f_value = (float)result + ((float)decimal_result / (float)pow);
+        //     token->m_type = FLOAT;
+        //     token->m_data.m_float = f_value * (negative ? -1.0f : 1.0f);
+        //     ctx->pos = i;
+        //     return;
+        // }
+        // else 
+        // {
+        //     token->m_type = INT;
+        //     token->m_data.m_int = result * (negative ? -1 : 1);
+        //     ctx->pos = i;
+        //     return;
+        // }
     }
 
     printf("LEXER::ERROR [read_token : no token found]");

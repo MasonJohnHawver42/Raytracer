@@ -71,6 +71,19 @@ void vec3_print(vec3 *v)
 }
 
 
+void vec3_inv(vec3* a, vec3* b) 
+{
+    a->x = 1.0f / b->x;
+    a->y = 1.0f / b->y;
+    a->z = 1.0f / b->z;
+}
+
+void  vec3_mult(vec3* a, vec3* b) 
+{
+    a->x *= b->x;
+    a->y *= b->y;
+    a->z *= b->z;
+}
 
 void vec4_init(float x, float y, float z, float w, vec4* v) 
 {
@@ -83,4 +96,19 @@ void vec4_init(float x, float y, float z, float w, vec4* v)
 void vec4_print(vec4 *v) 
 {
     printf("[%.2f; %.2f; %.2f; %.2f]\n", v->x, v->y, v->z, v->w);
+}
+
+void vec3_bc_mix(vec2* bc, vec3* v0, vec3* v1, vec3* v2, vec3* res) 
+{
+    float a = (1.0f - bc->x - bc->y);
+    res->x = (a * v0->x) + (bc->x * v1->x) + (bc->y * v2->x);
+    res->y = (a * v0->y) + (bc->x * v1->y) + (bc->y * v2->y);
+    res->z = (a * v0->z) + (bc->x * v1->z) + (bc->y * v2->z);
+}
+
+void vec2_bc_mix(vec2* bc, vec2* v0, vec2* v1, vec2* v2, vec2* res) 
+{
+    float a = (1.0f - bc->x - bc->y);
+    res->x = (a * v0->x) + (bc->x * v1->x) + (bc->y * v2->x);
+    res->y = (a * v0->y) + (bc->x * v1->y) + (bc->y * v2->y);
 }
