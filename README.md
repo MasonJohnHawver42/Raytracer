@@ -13,8 +13,9 @@ hw1c showcase img (./showcase_hw1c.png):
 
 
 <details>
-  <summary> old showcase imgs </summary>
+  <summary> more showcase imgs </summary>
 
+![hw1b showcase](./assets/gallery/bunny.png)
 ![hw1b showcase](./assets/gallery/hw1b_final.png)
 ![hw1a showcase](./assets/gallery/hw1a_final2.png)
 ![hw00 showcase](./assets/gallery/hw0_final.png)
