@@ -130,10 +130,20 @@ int scene_load(char* fn, scene* s, char* msg)
     unsigned int texture_id = 0;
 
     s->m_depth_cue.apply = 0;
+    s->m_depth = 1;
 
     do 
     {
         read_token(&ctx, &curr);
+        if (curr.m_type == WORD && wordtoken_equal(&ctx, "depth", &curr)) 
+        {
+            read_token(&ctx, &curr);
+            if (curr.m_type != WHITE_SPACE) { strcpy(msg, "depth failed"); free(file_data); return 0; }
+
+            read_token(&ctx, &curr);
+            if (curr.m_type != INT || curr.m_data.m_int <= 0) { strcpy(msg, "depth failed x < 0 or not int"); free(file_data); return 0; }
+             s->m_depth = curr.m_data.m_int;
+        }
         if (curr.m_type == WORD && wordtoken_equal(&ctx, "imsize", &curr)) 
         {
             read_token(&ctx, &curr);
@@ -227,8 +237,25 @@ int scene_load(char* fn, scene* s, char* msg)
 
             success = read_float(&ctx, &mat.n, buffer);
             if (!success) { sprintf(msg, "mtlcolor failed on n; %s", buffer); free(file_data); return 0; }
-            if (s->v_fov <= 0.0f || s->v_fov >= 180.0f) { sprintf(msg, "vfov failed; 0 < %f < 180", s->v_fov); free(file_data); return 0; }
         
+            read_token(&ctx, &curr);
+            if (curr.m_type != WHITE_SPACE) { strcpy(msg, "mtlcolor failed; expected whitespace after n"); free(file_data); return 0; }
+
+            success = read_float(&ctx, &mat.alpha, buffer);
+            if (!success) { sprintf(msg, "mtlcolor failed on n; %s", buffer); free(file_data); return 0; }
+
+            read_token(&ctx, &curr);
+            if (curr.m_type != WHITE_SPACE) { strcpy(msg, "mtlcolor failed; expected whitespace after n"); free(file_data); return 0; }
+
+            float ref;
+
+            success = read_float(&ctx, &ref, buffer);
+            if (!success) { sprintf(msg, "mtlcolor failed on n; %s", buffer); free(file_data); return 0; }
+
+            mat.ior = ref;
+            mat.f0 = (ref - 1.0f) / (ref + 1.0f);
+            mat.f0 = mat.f0 * mat.f0;
+
             // mat.m_tex_id = texture_id;
         }
         if (curr.m_type == WORD && (wordtoken_equal(&ctx, "light", &curr) || wordtoken_equal(&ctx, "attlight", &curr))) 
@@ -364,6 +391,12 @@ int scene_load(char* fn, scene* s, char* msg)
             int success = read_vec3(&ctx, &s->bg_color, buffer);
             if (!success) { sprintf(msg, "bkgcolor failed; %s", buffer); free(file_data); return 0; }
             if (!valid_color(&s->bg_color)) { sprintf(msg, "bkgcolor failed; 0 <= <%f %f %f> <= 1", s->bg_color.x, s->bg_color.y, s->bg_color.z); free(file_data); return 0; }
+
+            read_token(&ctx, &curr);
+            if (curr.m_type != WHITE_SPACE) { strcpy(msg, "bkgcolor failed; expected whitespace after 'bkgcolor'"); free(file_data); return 0; }
+
+            success = read_float(&ctx, &s->ior, buffer);
+            if (!success) { sprintf(msg, "bkgcolor ior failed; %s", buffer); free(file_data); return 0; }
 
             bkgcolor_found++;
         }

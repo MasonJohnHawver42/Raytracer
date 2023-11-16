@@ -17,11 +17,14 @@ SOURCE = src/core/common.c \
 
 VIEW ?= feh
 
-HW_VERSIONS = hw1c hw1b hw1a hw0
+HW_VERSIONS = hw1d hw1c hw1b hw1a hw0
 
 targets = $(addprefix ./bin/, $(HW_VERSIONS))
 
 targets_t = $(addsuffix _t, $(targets))
+
+raytracer1d : ./bin/hw1d
+	cp ./bin/hw1d ./raytracer1d
 
 raytracer1c : ./bin/hw1c
 	cp ./bin/hw1c ./raytracer1c
@@ -39,10 +42,10 @@ $(targets_t) : ./bin/%_t : %.c $(SOURCE)
 
 # Basic Phony targets
 
-all: raytracer1c
+all: raytracer1d
 
 clean: 
-	rm -f ./raytracer1b ./raytracer1c
+	rm -f ./raytracer1b ./raytracer1c ./raytracer1d
 	rm -f ./bin/*
 
 # ignore: Phony Targets for quick and dirty image creation and viewing
@@ -63,20 +66,24 @@ hw1c: bin/hw1c_t
 	./bin/hw1c_t assets/scenes/hw1c.in assets/renders/hw1c.ppm 
 	$(VIEW) assets/renders/hw1c.ppm
 
+hw1d: bin/hw1d_t
+	./bin/hw1d_t assets/scenes/hw1d.in assets/renders/hw1d.ppm 
+	$(VIEW) assets/renders/hw1d.ppm
+
 balls: bin/hw1c_t
 	./bin/hw1c_t assets/scenes/balls.in assets/renders/balls.ppm
 	$(VIEW) assets/renders/balls.ppm
 
-bunny: bin/hw1c_t
-	./bin/hw1c_t assets/scenes/bunny2.in assets/renders/bunny.ppm
+bunny: bin/hw1d_t
+	./bin/hw1d_t assets/scenes/bunny2.in assets/renders/bunny.ppm
 	$(VIEW) assets/renders/bunny.ppm
 
 arm: bin/hw1c_t
 	./bin/hw1c_t assets/scenes/arm.in assets/renders/arm.ppm
 	$(VIEW) assets/renders/arm.ppm
 
-dragon: bin/hw1c_t
-	./bin/hw1c_t assets/scenes/dragon.in assets/renders/dragon.ppm
+dragon: bin/hw1d_t
+	./bin/hw1d_t assets/scenes/dragon.in assets/renders/dragon.ppm
 	$(VIEW) assets/renders/dragon.ppm
 
 

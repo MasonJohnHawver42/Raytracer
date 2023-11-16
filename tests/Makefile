@@ -22,7 +22,7 @@ compare : compare.c $(SOURCE)
 	$(CC) compare.c $(SOURCE) -o compare $(INCLUDE) $(LIB) $(FLAGS)
 
 clean:
-	rm -f ./out/*
+	# rm -f ./out/*
 	rm -f ./diff/*
 
 hw1a : clean compare
@@ -36,3 +36,7 @@ hw1b : clean compare
 hw1c : clean compare
 	cd ../ && make ./bin/hw1c
 	python3 unit.py ./hw1c/ ../bin/hw1c ./compare
+
+hw1d : clean compare
+	cd ../ && make ./bin/hw1d
+	python3 unit.py ./hw1d/ ../bin/hw1d ./compare

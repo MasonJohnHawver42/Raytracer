@@ -21,12 +21,12 @@ void rtctx_load(scene* raw_s, rtctx* s)
     s->width = raw_s->width;
     s->height = raw_s->height;
     s->bg_color = raw_s->bg_color;
+    s->ior = raw_s->ior;
     s->m_dc = raw_s->m_depth_cue;
     s->m_camera.v_fov = raw_s->v_fov;
 
     //build the bvh
-    int depth = floor(log2f(fmaxf(((float)(raw_s->m_sphere_objs.size + raw_s->m_faces.size)), 1.0f) + 1.0f));
-    depth = fmax(1, fmin(depth, 32));
+    int depth = fmax(1, fmin(raw_s->m_depth, 32));
 
     bvh_build(depth, &raw_s->m_sphere_objs, &raw_s->m_faces, &raw_s->m_vertexes, &raw_s->m_normals, &s->m_bvh);
     // arena_free(&raw_s->m_sphere_objs);
@@ -141,30 +141,26 @@ void rtctx_cast_ray(ray* s_ray, rtctx* s, unsigned int avoid, int avoid_type, in
     }
 }
 
-void rtctx_shade(rtctx* s, ray* s_ray, int hit, raycast* rc, vec3* color) 
+void rtctx_shade(rtctx* s, ray* s_ray, int hit, raycast* rc, vec3* color, int rec_n, int inside) 
 {
     // printf("%d ", hit);
     if (hit) 
     {
         vec3 diffuse_color;
 
-        if (rc->mat.m_tex_id == 0) 
+        Image* img = (Image*)hashmap_get_hash(rc->mat.m_tex_id, &s->m_textures);
+        
+        if (rc->mat.m_tex_id == 0 || img == NULL || img->data == NULL) 
         {
             diffuse_color = rc->mat.m_diffuse;
         }
         else 
         {
-            Image* img = (Image*)hashmap_get_hash(rc->mat.m_tex_id, &s->m_textures);
             double what;
             
             rc->uv.x = clamp(rc->uv.x, 0, 1);
             rc->uv.y = clamp(rc->uv.y, 0, 1);
             unsigned int i = image_getindex(&rc->uv, img);
-            if (!(i >= 0 && i < img->width * img->height)) 
-            {
-                printf("%f %f %d %d \n", rc->uv.x, rc->uv.y, i, img->width * img->height - i);
-            }
-            // printf("%d \n", i >= 0 && i < img->width * img->height ? 1 : 0);
             image_getpixel(i, &diffuse_color, img);
         }
 
@@ -217,6 +213,12 @@ void rtctx_shade(rtctx* s, ray* s_ray, int hit, raycast* rc, vec3* color)
             // printf("%f %d %d %d\n", light_rc.time_hit, light_rc.m_type, SPHERE_RC, TRIANGLE_RC);
 
             float dot = vec3_dot(&rc->normal, &l);
+
+            if (-1 * vec3_dot(&rc->normal, &s_ray->m_vel) < 0) 
+            {
+                vec3_scale(-1.0f, &rc->normal);
+            }
+
             float dot2;
             float att = 1.0f;
 
@@ -244,6 +246,61 @@ void rtctx_shade(rtctx* s, ray* s_ray, int hit, raycast* rc, vec3* color)
             cont = arena_next(&iter, &s->m_lights);
         }
 
+        float fr = 0;
+
+        if (rec_n > 0) 
+        {
+            ray r_ray;
+            raycast r_rc;
+            int r_hit;
+            vec3 r_color;
+
+            // r_ray.m_pos = rc->hit_pos;
+            vec3_scaled_add(-2 * vec3_dot(&rc->normal, &s_ray->m_vel), &rc->normal, 1, &s_ray->m_vel, &r_ray.m_vel);
+            vec3_scaled_add(1.0f, &rc->hit_pos, .01, &r_ray.m_vel, &r_ray.m_pos);   
+            
+            rtctx_cast_ray(&r_ray, s, -1, NONE_RC, &r_hit, &r_rc);
+            rtctx_shade(s, &r_ray, r_hit, &r_rc, &r_color, rec_n - 1, inside); //shade the pixel based on the ray cast outputs
+
+            fr = rc->mat.f0 + ((1 - rc->mat.f0) * pow(fmin(1, 1 + vec3_dot(&rc->normal, &s_ray->m_vel)), 5.0f));
+            // printf("%f \n", fr);
+            vec3_scaled_add(fr, &r_color, 1.0f, &result, &result);
+
+            if (rc->mat.alpha < 1) 
+            {
+                ray t_ray;
+                raycast t_rc;
+                int t_hit;
+                vec3 t_color;
+
+                t_ray.m_vel = s_ray->m_vel; //change this for reflactance
+                int inside_next;
+                float temp1;
+
+                if (inside == 0) 
+                {
+                    float temp1 = (s->ior / rc->mat.ior);
+                    inside_next = 1;
+                }
+                else 
+                {
+                    float temp1 = (rc->mat.ior / s->ior);
+                    inside_next = 0;
+                }
+
+                float temp2 = vec3_dot(&rc->normal, &s_ray->m_vel); vec3 temp_vec;
+                vec3_scaled_add(-1.0f * temp2, &rc->normal, 1.0f, &s_ray->m_vel, &temp_vec);
+                vec3_scaled_add(-1.0f * sqrt(1.0f - (temp1 * temp1 * (1.0f - (temp2 * temp2)))), &rc->normal, temp1, &temp_vec, &t_ray.m_vel);
+
+                vec3_scaled_add(1.0f, &rc->hit_pos, .01, &t_ray.m_vel, &t_ray.m_pos);
+
+                rtctx_cast_ray(&t_ray, s, -1, NONE_RC, &t_hit, &t_rc);
+                rtctx_shade(s, &t_ray, t_hit, &t_rc, &t_color, rec_n - 1, inside_next); // shade the pixel based on the ray cast outputs
+
+                vec3_scaled_add((1 - fr) * (1 - rc->mat.alpha), &t_color, 1.0f, &result, &result);
+            }
+        }
+
         //apply depth cue
         if (s->m_dc.apply) 
         {
@@ -259,10 +316,19 @@ void rtctx_shade(rtctx* s, ray* s_ray, int hit, raycast* rc, vec3* color)
         }
 
         *color = result;
+        // color->x = fr;
+        // color->y = fr;
+        // color->z = fr;
     }
     else 
     {
+        // double what;
+        // float u = (((atan2(-1.0f * s_ray->m_vel.y, -1.0f * s_ray->m_vel.x) + M_PI) / (2 * M_PI)) + 0.5f) * 300;
+        // float v = (acos(-1.0f * s_ray->m_vel.z) / M_PI) * 300;
         *color = s->bg_color;
+        // color->x = ((int)floor(u) + (int)floor(v)) % 2 == 0 ? 1 : 0;
+        // color->y = ((int)floor(u) + (int)floor(v)) % 2 == 0 ? 1 : 0;
+        // color->z = ((int)floor(u) + (int)floor(v)) % 2 == 0 ? 1 : 0;
     }
 }
 

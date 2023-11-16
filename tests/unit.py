@@ -17,13 +17,15 @@ for fn in os.listdir(folder_path):
     if os.path.isfile(f):
         rt, ext = os.path.splitext(f)
         if (ext == ".txt"):
+            print(str(f))
+            print()
             call([rt_path, str(f), out_path + "/" + fn.split(".")[0] + ".ppm"])
 
 print("\n------------------------\n")
 
-for fn in os.listdir(folder_path):
-    f = os.path.join(folder_path, fn)
-    if os.path.isfile(f):
-        rt, ext = os.path.splitext(f)
-        if (ext == ".ppm"):
-            call([cp_path, str(f), out_path + "/" + fn.split(".")[0] + ".ppm", diff_path + "/" + fn.split(".")[0] + ".ppm"])
+# for fn in os.listdir(folder_path):
+#     f = os.path.join(folder_path, fn)
+#     if os.path.isfile(f):
+#         rt, ext = os.path.splitext(f)
+#         if (ext == ".ppm"):
+#             call([cp_path, str(f), out_path + "/" + fn.split(".")[0] + ".ppm", diff_path + "/" + fn.split(".")[0] + ".ppm"])

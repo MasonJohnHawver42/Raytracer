@@ -12,7 +12,7 @@ struct material
 {
     vec3 m_diffuse;
     vec3 m_specular;
-    float ka, kd, ks, n;
+    float ka, kd, ks, n, alpha, f0, ior;
     unsigned int m_tex_id;
     unsigned int m_normal_tex_id;
 };
@@ -85,6 +85,7 @@ struct scene
     //misc settings
     unsigned int width, height;
     vec3 bg_color;
+    float ior;
 
     depth_cue m_depth_cue;
 
@@ -105,6 +106,8 @@ struct scene
     arena m_vertexes;
     arena m_normals;
     arena m_uvs;
+
+    int m_depth;
 
     arena m_faces;
 };

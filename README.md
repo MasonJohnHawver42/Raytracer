@@ -6,15 +6,16 @@ Class: CSCI 5607
 
 # Gallery
 
-hw1c showcase img (./showcase_hw1c.png): 
+hw1d showcase img (./showcase_hw1d.png): 
 
-![hw1c 2 showcase](./assets/gallery/showcase_1c2.png)
-![hw1c 1 showcase](./assets/gallery/showcase_1c1.png)
-
+![hw1d showcase](./assets/gallery/showcase_hw1d.png)
+<!-- ![hw1d showcase](./assets/gallery/hw1d_bunny.png) -->
 
 <details>
   <summary> more showcase imgs </summary>
 
+![hw1c 2 showcase](./assets/gallery/showcase_1c2.png)
+![hw1c 1 showcase](./assets/gallery/showcase_1c1.png)
 ![hw1b showcase](./assets/gallery/bunny.png)
 ![hw1b showcase](./assets/gallery/hw1b_final.png)
 ![hw1a showcase](./assets/gallery/hw1a_final2.png)
@@ -28,15 +29,15 @@ Compiling and Running on Linux-x86: (If not use the use the corresponding progra
 ```
 cd <path to hw1c.mason.hawver>
 make all
-./raytracer1c <input file name> <optional: output file name>
+./raytracer1d <input file name> <optional: output file name>
 ``` 
 
 Example Usage:
 ```
-./raytracer1c ./assets/scenes/hw1b.in ./hw1b.ppm
+./raytracer1d ./assets/scenes/hw1b.in ./hw1b.ppm
 feh ./hw1b.ppm #view image
 
-./raytracer1c ./assets/scenes/hw1b.in 
+./raytracer1d ./assets/scenes/hw1b.in 
 feh ./assets/scenes/hw1b.ppm #view image
 ```
 
@@ -56,14 +57,26 @@ feh ./assets/scenes/hw1b.ppm #view image
  * ./bin -> all programs generated so far
  * ./tests -> my unit tests
 
-# HW1c Writeup
+# HW1d Writeup
 
+![hw1d 1](./assets/hw1d_imgs/hw1d_1.png)
 
-![hw1c test img](./assets/hw1c_imgs/hw1c.png)
+This render is an example of light refracting through this glass sphere.
 
-The reference Image for this scene was notably distorted compared to mine; I'm assuming there is something wrong with your code. The scene file for this is in ./assets/scenes/hw1c.in.
+![hw1d 2](./assets/hw1d_imgs/hw1d_2.png)
 
-The scene files for the two showcase images: ./assets/scenes/bunny2.in ./assets/scenes/dragon.in
+This render is an example of light reflecting off these spheres.
+
+**Extra Credit**
+
+I implemented a bvh for my raytracer, it includes all of the spheres and triangles into one bvh. It splits based on the half way plane along the longest axis of the bounding box. The user can control its depth:
+
+```
+depth 18 # log_2( #primitives )
+```
+
+The proof for this is simply the fact I was able to render a dragon model that had half a million triangle faces in 10s (its using threading too but I send you guys the unthreaded version just to avoid compilation errors). 
+
 
 ## Old HW Writeups
 
@@ -285,5 +298,19 @@ multiple lights force shadows to be mixed, currently this is done additively. It
 light 20 20 20   1 .33 .33 .33 \
 light -20 20 20  1 .33 .33 .33 \
 light 0 20 20    1 .33 .33 .33 
+
+</details>
+
+<details>
+  <summary>HW1c</summary>
+
+# HW1c Writeup
+
+
+![hw1c test img](./assets/hw1c_imgs/hw1c.png)
+
+The reference Image for this scene was notably distorted compared to mine; I'm assuming there is something wrong with your code. The scene file for this is in ./assets/scenes/hw1c.in.
+
+The scene files for the two showcase images: ./assets/scenes/bunny2.in ./assets/scenes/dragon.in
 
 </details>
